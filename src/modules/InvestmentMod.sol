@@ -39,11 +39,13 @@ contract InvestmentMod is ERC4626, OwnableRoles {
 
     /// @dev Hook that is called before any withdrawal or redemption.
     function _beforeWithdraw(uint256, uint256) internal virtual override {
-        if (block.timestamp < MIN_DURATION) revert();
+        // TODO: implement
     }
 
     /// @dev Hook that is called after any deposit or mint.
-    function _afterDeposit(uint256 assets, uint256 shares) internal virtual override {}
+    function _afterDeposit(uint256, uint256) internal virtual override {
+        // TODO: implement
+    }
 
     //*//////////////////////////////////////////////////////////////////////////
     //                                 OVERRIDES
