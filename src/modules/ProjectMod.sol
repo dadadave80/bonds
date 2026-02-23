@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import {IProjectMod, ImpactScore, ProjectDetails} from "../interfaces/IProjectMod.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -10,7 +11,7 @@ event ProjectUpdated(uint256 projectId, string projectURI);
 event CreEntrypointUpdated(address creEntrypoint);
 error NotCreEntrypoint();
 
-contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable {
+contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod {
     //*//////////////////////////////////////////////////////////////////////////
     //                                  STORAGE
     //////////////////////////////////////////////////////////////////////////*//
