@@ -17,9 +17,9 @@ contract InvestmentMod is ERC4626, OwnableRoles {
     uint256 private constant MIN_DURATION = 365 days;
     // uint256(keccak256("bond.admin.role"))
     uint256 public constant ADMIN_ROLE = 5990507170922064599851912174407407848819374031555223498714203695820960965153;
-    // uint256(keccak256("bond.investor.role"))
-    uint256 public constant INVESTOR_ROLE =
-        100072418519682715403571630713264651455801416692533675711340257043684521151149;
+    // uint256(keccak256("bond.issuer.role"))
+    uint256 public constant ISSUER_ROLE = 8134971354964128561662918087387438297584684331987304161041731369355285421532;
+    address public immutable projectRegistry;
 
     //*//////////////////////////////////////////////////////////////////////////
     //                                  STORAGE
@@ -65,7 +65,7 @@ contract InvestmentMod is ERC4626, OwnableRoles {
     //////////////////////////////////////////////////////////////////////////*//
 
     //*//////////////////////////////////////////////////////////////////////////
-    //                             INVESTOR FUNCTIONS
+    //                             ISSUER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*//
 
     //*//////////////////////////////////////////////////////////////////////////
