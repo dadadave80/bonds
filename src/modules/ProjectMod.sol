@@ -52,11 +52,13 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
         emit ProjectUpdated(projectId_, _projectURI, ImpactScore(0, 0));
     }
 
-    function updateProjects(uint256[] calldata _projectIds, string[] calldata _projectURIs) external onlyCRE {
-        uint256 length = _projectIds.length;
-        if (length != _projectURIs.length) revert NotCreEntrypoint();
+    function updateProjects(ProjectDetails[] calldata _projectDetails) external onlyCRE {
+        uint256 length = _projectDetails.length;
         for (uint256 i; i < length; ++i) {
-            _updateProject(_projectIds[i], _projectURIs[i]);
+            _updateProject(_projectDetails[i].projectId, _projectDetails[i].projectURI, _projectDetails[i].impactScore);
+        }
+    }
+
     function getCreEntrypointAddress() external view returns (address) {
         return creEndpoint;
     }
@@ -118,11 +120,14 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
         ERC721Enumerable._increaseBalance(account, amount);
     }
 
-    function _updateProject(uint256 _projectId, string calldata _projectURI) private {
     //*//////////////////////////////////////////////////////////////////////////
     //                             PRIVATE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*//
 
+    function _updateProject(uint256 _projectId, string calldata _projectURI, ImpactScore calldata _impactScore)
+        private
+    {
+        projectScores[_projectId] = _impactScore;
         _setTokenURI(_projectId, _projectURI);
         emit ProjectUpdated(_projectId, _projectURI, _impactScore);
     }
