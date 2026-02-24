@@ -54,6 +54,10 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
     }
 
     function createProject(string calldata _projectURI) external returns (uint256 projectId_) {
+    function setWhitelist(address _account, bool _status) external onlyOwner {
+        whitelist[_account] = _status;
+    }
+
         projectId_ = totalSupply() + 1;
         _mint(_msgSender(), projectId_);
         _setTokenURI(projectId_, _projectURI);
