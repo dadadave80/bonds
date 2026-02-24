@@ -39,6 +39,11 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
         _;
     }
 
+    modifier onlyWhitelisted() {
+        if (!whitelist[_msgSender()]) revert NotWhitelisted();
+        _;
+    }
+
     //*//////////////////////////////////////////////////////////////////////////
     //                             EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*//
