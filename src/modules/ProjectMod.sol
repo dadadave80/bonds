@@ -10,6 +10,7 @@ import {Ownable} from "solady/auth/Ownable.sol";
 event ProjectUpdated(uint256 projectId, string projectURI, ImpactScore impactScore);
 event CreEntrypointSet(address creEntrypoint);
 error NotCreEntrypoint();
+error NotWhitelisted();
 
 contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod {
     //*//////////////////////////////////////////////////////////////////////////
