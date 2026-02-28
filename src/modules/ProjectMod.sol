@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IProjectMod, ImpactScore, ProjectDetails} from "../interfaces/IProjectMod.sol";
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721, IERC165} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import {Ownable} from "solady/auth/Ownable.sol";
@@ -110,7 +110,7 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
         public
         view
         virtual
-        override(ERC721Enumerable, ERC721URIStorage)
+        override(IERC165, ERC721Enumerable, ERC721URIStorage)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
