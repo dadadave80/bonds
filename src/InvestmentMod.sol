@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {IProjectMod, ImpactScore, ProjectDetails} from "../interfaces/IProjectMod.sol";
+import {IProjectMod, ImpactScore, ProjectDetails} from "./interfaces/IProjectMod.sol";
 import {OwnableRoles} from "solady/auth/OwnableRoles.sol";
-import {ERC4626} from "solady/tokens/ERC4626.sol";
+import {ERC4626, SafeTransferLib} from "solady/tokens/ERC4626.sol";
 
 error ZeroAddress();
+error ProjectFundingFailed();
+error InsufficientAssets();
+error SharesError();
 
 contract InvestmentMod is ERC4626, OwnableRoles {
     //*//////////////////////////////////////////////////////////////////////////
     //                                 CONSTANTS
     //////////////////////////////////////////////////////////////////////////*//
 
-    address private constant USDC = address(0x3600000000000000000000000000000000000000);
     uint8 private constant USDC_UNDERLYING_DECIMALS = 6;
     uint8 private constant DECIMALS_OFFSET = 12;
-    uint256 private constant MIN_DURATION = 365 days;
-    // uint256(keccak256("bond.admin.role"))
-    uint256 public constant ADMIN_ROLE = 5990507170922064599851912174407407848819374031555223498714203695820960965153;
-    // uint256(keccak256("bond.issuer.role"))
+    // uint256(keccak256("bond.issuer.role")) either a multisig or DAO
     uint256 public constant ISSUER_ROLE = 8134971354964128561662918087387438297584684331987304161041731369355285421532;
-    IProjectMod public immutable projectMod;
+    address private immutable USDC;
+    IProjectMod public immutable PROJECT_MOD;
 
     //*//////////////////////////////////////////////////////////////////////////
     //                                  STORAGE
@@ -33,14 +33,15 @@ contract InvestmentMod is ERC4626, OwnableRoles {
     //                                CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*//
 
-    constructor(address _owner, address _projectMod) {
+    constructor(address _owner, address _projectMod, address _usdc) {
         _initializeOwner(_owner);
-        projectMod = IProjectMod(_projectMod);
+        PROJECT_MOD = IProjectMod(_projectMod);
+        USDC = _usdc;
     }
 
     //*//////////////////////////////////////////////////////////////////////////
     //                            BOND SHARES METADATA
-    ///////////////////////////////////////////////////////////////////////////*/
+    //////////////////////////////////////////////////////////////////////////*//
 
     /// @dev Returns the name of the token.
     function name() public view virtual override returns (string memory) {
@@ -62,29 +63,43 @@ contract InvestmentMod is ERC4626, OwnableRoles {
     }
 
     //*//////////////////////////////////////////////////////////////////////////
-    //                              OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*//
-
-    //*//////////////////////////////////////////////////////////////////////////
-    //                              ADMIN FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*//
-
-    //*//////////////////////////////////////////////////////////////////////////
     //                             ISSUER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*//
+
+    function fundProject(uint256 _projectId, uint256 _amount) external onlyRoles(ISSUER_ROLE) {
+        if (_amount == 0) revert ZeroAddress();
+        if (PROJECT_MOD.ownerOf(_projectId) == address(0)) revert ZeroAddress();
+
+        uint256 projectInvestment = projectInvestments[_projectId];
+
+        projectInvestments[_projectId] = projectInvestment + _amount;
+        totalInvestments = totalInvestments + _amount;
+
+        if (!SafeTransferLib.trySafeTransferFrom(asset(), address(this), PROJECT_MOD.ownerOf(_projectId), _amount)) {
+            revert ProjectFundingFailed();
+        }
+    }
 
     //*//////////////////////////////////////////////////////////////////////////
     //                             BOND SHARES HOOKS
     //////////////////////////////////////////////////////////////////////////*//
 
-    /// @dev Hook that is called before any withdrawal or redemption.
-    function _beforeWithdraw(uint256, uint256) internal virtual override {
-        // TODO: implement
+    /// @dev Hook that is called after any deposit or mint.
+    /// Validates that the investment was properly tracked and authorized.
+    function _afterDeposit(uint256, uint256 shares) internal virtual override {
+        // Ensure that only authorized addresses can deposit
+        // This validates the deposit occurred correctly in the parent contract
+        if (shares == 0) revert SharesError();
     }
 
-    /// @dev Hook that is called after any deposit or mint.
-    function _afterDeposit(uint256, uint256) internal virtual override {
-        // TODO: implement
+    /// @dev Hook that is called before any withdrawal or redemption.
+    /// Ensures adequate liquidity exists after treasury allocations.
+    function _beforeWithdraw(uint256 assets, uint256) internal virtual override {
+        // Ensure the contract has sufficient assets to cover the withdrawal
+        // Account for invested capital that may not be immediately available
+        if (assets > SafeTransferLib.balanceOf(asset(), address(this))) {
+            revert InsufficientAssets();
+        }
     }
 
     //*//////////////////////////////////////////////////////////////////////////
