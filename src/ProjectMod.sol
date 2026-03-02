@@ -83,8 +83,9 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
 
     function getProjectScores() external view returns (ImpactScore[] memory projectScores_) {
         uint256 length = totalSupply();
-        for (uint256 i = 1; i < length; ++i) {
-            projectScores_[i] = projectScores[i];
+        projectScores_ = new ImpactScore[](length);
+        for (uint256 i; i < length; ++i) {
+            projectScores_[i] = projectScores[i + 1];
         }
     }
 
