@@ -213,7 +213,9 @@ contract ProjectMod is ERC721Enumerable, ERC721URIStorage, Ownable, IProjectMod 
         private
     {
         projectScores[_projectId] = _impactScore;
-        _setTokenURI(_projectId, _projectURI);
+        if (bytes(_projectURI).length > 0) {
+            _setTokenURI(_projectId, _projectURI);
+        }
         emit ProjectUpdated(_projectId, _projectURI, _impactScore);
     }
 }
