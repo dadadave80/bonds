@@ -182,7 +182,12 @@ forge fmt
 ### Deploy
 
 ```bash
-forge script script/DeployEcobond.s.sol --rpc-url <RPC_URL> --broadcast
+forge script script/DeployEcobond.s.sol:DeployEcobond \
+--rpc-url <RPC_URL> \
+--account <KEYSTORE_ACCOUNT> \
+--sender <SENDER_ADDRESS> \ #optional
+--broadcast \
+--verify #optional
 ```
 
 ---
